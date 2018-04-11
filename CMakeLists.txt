@@ -86,7 +86,11 @@ option(WITH_SRV "Include SRV lookup support?" ON)
 add_subdirectory(lib)
 add_subdirectory(client)
 add_subdirectory(src)
-add_subdirectory(man)
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    # PASS
+else()
+    add_subdirectory(man)
+endif()
 
 # ========================================
 # Install config file
