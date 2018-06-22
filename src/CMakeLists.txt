@@ -100,6 +100,7 @@ endif (CMAKE_SYSTEM_NAME STREQUAL Linux)
 
 option(WITH_WEBSOCKETS
 	"Include websockets support?" OFF)
+	
 if (${WITH_WEBSOCKETS} STREQUAL ON)
 	add_definitions("-DWITH_WEBSOCKETS")
 endif (${WITH_WEBSOCKETS} STREQUAL ON)
@@ -141,7 +142,17 @@ if (WIN32)
 endif (WIN32)
 
 if (${WITH_WEBSOCKETS} STREQUAL ON)
-	set (MOSQ_LIBS ${MOSQ_LIBS} websockets)
+	if (WEBSOCKET_ROOT_DIR)
+		find_library(WEBSOCKETS websockets PATHS ${WEBSOCKET_ROOT_DIR}/lib)
+		if (WEBSOCKETS)
+			set(MOSQ_LIBS ${MOSQ_LIBS} ${WEBSOCKETS})
+			include_directories(${WEBSOCKET_ROOT_DIR}/include)
+		else (WEBSOCKETS)
+			message(FATAL "Could not find websockets library.")
+		endif (WEBSOCKETS)
+	else (WEBSOCKET_ROOT_DIR)
+		set(MOSQ_LIBS ${MOSQ_LIBS} websockets)
+	endif (WEBSOCKET_ROOT_DIR)
 endif (${WITH_WEBSOCKETS} STREQUAL ON)
 
 # Simple detect libuuid
