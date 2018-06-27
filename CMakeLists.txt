@@ -84,24 +84,6 @@ set(OPENSSL_ROOT_DIR "" CACHE PATH "The location of the openssl package.")
 set(PTHREAD_ROOT_DIR "" CACHE PATH "The location of the pthread package.")
 set(WEBSOCKETS_ROOT_DIR "" CACHE PATH "The location of the websocket package.")
 
-#option(WITH_WEBSOCKETS "Include websockets support?" ON)
-#if (${WITH_WEBSOCKETS} STREQUAL ON)
-#    add_definitions("-DWITH_WEBSOCKETS")
-#    if (WEBSOCKETS_ROOT_DIR)
-#        # set(MOSQ_LIBS ${MOSQ_LIBS} ${WEBSOCKETS}/lib)
-#        # include_directories(${WEBSOCKET_ROOT_DIR}/include)
-#		find_library(WEBSOCKETS websockets PATHS ${WEBSOCKET_ROOT_DIR}/lib)
-#		if (WEBSOCKETS)
-#			set(MOSQ_LIBS ${MOSQ_LIBS} ${WEBSOCKETS})
-#			include_directories(${WEBSOCKET_ROOT_DIR}/include)
-#		else (WEBSOCKETS)
-#			message(FATAL "Could not find websockets library.")
-#		endif (WEBSOCKETS)
-#    else (WEBSOCKETS_ROOT_DIR)
-#		set(MOSQ_LIBS ${MOSQ_LIBS} websockets)
-#    endif (WEBSOCKETS_ROOT_DIR)
-#endif (${WITH_WEBSOCKETS} STREQUAL ON)
-
 # ========================================
 # Include projects
 # ========================================

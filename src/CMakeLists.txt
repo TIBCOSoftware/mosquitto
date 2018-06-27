@@ -111,7 +111,9 @@ endif (WIN32)
 if (${WITH_WEBSOCKETS} STREQUAL ON)
     add_definitions("-DWITH_WEBSOCKETS")
     if (WEBSOCKETS_ROOT_DIR)
-        find_library(WEBSOCK_LIB libwebsockets PATHS ${WEBSOCKETS_ROOT_DIR})
+        find_library(WEBSOCK_LIB websockets 
+            PATHS ${WEBSOCKETS_ROOT_DIR}
+            PATH_SUFFIXES lib)
         if (WEBSOCK_LIB)
 			set(MOSQ_LIBS ${MOSQ_LIBS} ${WEBSOCK_LIB})
             include_directories(${WEBSOCKET_ROOT_DIR}/include)
