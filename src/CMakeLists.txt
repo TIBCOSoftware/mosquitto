@@ -115,6 +115,7 @@ if (${WITH_WEBSOCKETS} STREQUAL ON)
             PATHS ${WEBSOCKETS_ROOT_DIR}
             PATH_SUFFIXES lib)
         if (WEBSOCK_LIB)
+            message(STATUS " FOUND: websockets - ${WEBSOCKETS_ROOT_DIR}.")
 			set(MOSQ_LIBS ${MOSQ_LIBS} ${WEBSOCK_LIB})
             include_directories(${WEBSOCKET_ROOT_DIR}/include)
 		else (WEBSOCK_LIB)
