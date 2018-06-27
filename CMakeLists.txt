@@ -109,10 +109,10 @@ set(WEBSOCKETS_ROOT_DIR "" CACHE PATH "The location of the websocket package.")
 add_subdirectory(lib)
 add_subdirectory(client)
 add_subdirectory(src)
-if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    # PASS
-else()
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     add_subdirectory(man)
+else()
+    # PASS
 endif()
 
 # ========================================
