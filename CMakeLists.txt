@@ -81,7 +81,7 @@ option(WITH_SRV "Include SRV lookup support?" ON)
 
 set(OPENSSL_ROOT_DIR "" CACHE PATH "The location of the openssl package.")
 set(PTHREAD_ROOT_DIR "" CACHE PATH "The location of the pthread package.")
-set(WEBSOCKET_ROOT_DIR "" CACHE PATH "The location of the websocket package.")
+set(WEBSOCKETS_ROOT_DIR "" CACHE PATH "The location of the websocket package.")
 
 # ========================================
 # Include projects
