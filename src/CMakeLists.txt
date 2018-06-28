@@ -88,22 +88,11 @@ if (${WITH_SYS_TREE} STREQUAL ON)
 	add_definitions("-DWITH_SYS_TREE")
 endif (${WITH_SYS_TREE} STREQUAL ON)
 
-if (CMAKE_SYSTEM_NAME STREQUAL Linux)
-	option(WITH_SYSTEMD
-		"Include systemd support?" OFF)
-	if (${WITH_SYSTEMD} STREQUAL ON)
-		add_definitions("-DWITH_SYSTEMD")
-		find_library(SYSTEMD_LIBRARY systemd)
-		set (MOSQ_LIBS ${MOSQ_LIBS} ${SYSTEMD_LIBRARY})
-	endif (${WITH_SYSTEMD} STREQUAL ON)
-endif (CMAKE_SYSTEM_NAME STREQUAL Linux)
-
-option(WITH_WEBSOCKETS
-	"Include websockets support?" OFF)
-	
+option(WITH_WEBSOCKETS "Include websockets support?" OFF)
 if (${WITH_WEBSOCKETS} STREQUAL ON)
-	add_definitions("-DWITH_WEBSOCKETS")
+    add_definitions("-DWITH_WEBSOCKETS")
 endif (${WITH_WEBSOCKETS} STREQUAL ON)
+
 
 if (WIN32 OR CYGWIN)
 	set (MOSQ_SRCS ${MOSQ_SRCS} service.c)
@@ -142,17 +131,20 @@ if (WIN32)
 endif (WIN32)
 
 if (${WITH_WEBSOCKETS} STREQUAL ON)
-	if (WEBSOCKET_ROOT_DIR)
-		find_library(WEBSOCKETS websockets PATHS ${WEBSOCKET_ROOT_DIR}/lib)
-		if (WEBSOCKETS)
-			set(MOSQ_LIBS ${MOSQ_LIBS} ${WEBSOCKETS})
-			include_directories(${WEBSOCKET_ROOT_DIR}/include)
-		else (WEBSOCKETS)
-			message(FATAL "Could not find websockets library.")
-		endif (WEBSOCKETS)
-	else (WEBSOCKET_ROOT_DIR)
+    if (WEBSOCKETS_ROOT_DIR)
+        find_library(WEBSOCK_LIB websockets 
+            PATHS ${WEBSOCKETS_ROOT_DIR}
+            PATH_SUFFIXES lib)
+        if (WEBSOCK_LIB)
+            message(STATUS " FOUND: websockets - ${WEBSOCKETS_ROOT_DIR}.")
+			set(MOSQ_LIBS ${MOSQ_LIBS} ${WEBSOCK_LIB})
+            include_directories(${WEBSOCKETS_ROOT_DIR}/include)
+		else (WEBSOCK_LIB)
+            message(FATAL " ERROR: Could not find websockets library ${WEBSOCKETS_ROOT_DIR}.")
+        endif (WEBSOCK_LIB)
+    else (WEBSOCKETS_ROOT_DIR)
 		set(MOSQ_LIBS ${MOSQ_LIBS} websockets)
-	endif (WEBSOCKET_ROOT_DIR)
+    endif (WEBSOCKETS_ROOT_DIR)
 endif (${WITH_WEBSOCKETS} STREQUAL ON)
 
 # Simple detect libuuid
