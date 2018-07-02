@@ -22,8 +22,6 @@ if cmd_subfolder not in sys.path:
 
 import mosq_test
 
-port = mosq_test.get_lib_port()
-
 if sys.version < '2.7':
     print("WARNING: SSL not supported on Python 2.6")
     exit(0)
@@ -38,7 +36,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 ssock = ssl.wrap_socket(sock, ca_certs="../ssl/all-ca.crt", keyfile="../ssl/server.key", certfile="../ssl/server.crt", server_side=True, ssl_version=ssl.PROTOCOL_TLSv1)
 ssock.settimeout(10)
-ssock.bind(('', port))
+ssock.bind(('', 1888))
 ssock.listen(5)
 
 client_args = sys.argv[1:]
@@ -49,7 +47,7 @@ try:
 except KeyError:
     pp = ''
 env['PYTHONPATH'] = '../../lib/python:'+pp
-client = mosq_test.start_client(filename=sys.argv[1].replace('/', '-'), cmd=client_args, env=env, port=port)
+client = mosq_test.start_client(filename=sys.argv[1].replace('/', '-'), cmd=client_args, env=env)
 
 try:
     (conn, address) = ssock.accept()

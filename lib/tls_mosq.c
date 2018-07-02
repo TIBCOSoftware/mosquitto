@@ -16,15 +16,12 @@ Contributors:
 
 #ifdef WITH_TLS
 
-#include "config.h"
-
 #ifdef WIN32
 #  include <winsock2.h>
 #  include <ws2tcpip.h>
 #else
 #  include <arpa/inet.h>
 #  include <sys/socket.h>
-#  include <strings.h>
 #endif
 
 #include <string.h>
@@ -33,15 +30,14 @@ Contributors:
 #include <openssl/ssl.h>
 
 #ifdef WITH_BROKER
-#  include "mosquitto_broker_internal.h"
+#  include "mosquitto_broker.h"
 #endif
 #include "mosquitto_internal.h"
-#include "logging_mosq.h"
 #include "tls_mosq.h"
 
 extern int tls_ex_index_mosq;
 
-int mosquitto__server_certificate_verify(int preverify_ok, X509_STORE_CTX *ctx)
+int _mosquitto_server_certificate_verify(int preverify_ok, X509_STORE_CTX *ctx)
 {
 	/* Preverify should have already checked expiry, revocation.
 	 * We need to verify the hostname. */
@@ -62,14 +58,10 @@ int mosquitto__server_certificate_verify(int preverify_ok, X509_STORE_CTX *ctx)
 			cert = X509_STORE_CTX_get_current_cert(ctx);
 			/* This is the peer certificate, all others are upwards in the chain. */
 #if defined(WITH_BROKER)
-			preverify_ok = mosquitto__verify_certificate_hostname(cert, mosq->bridge->addresses[mosq->bridge->cur_address].address);
+			return _mosquitto_verify_certificate_hostname(cert, mosq->bridge->addresses[mosq->bridge->cur_address].address);
 #else
-			preverify_ok = mosquitto__verify_certificate_hostname(cert, mosq->host);
+			return _mosquitto_verify_certificate_hostname(cert, mosq->host);
 #endif
-			if (preverify_ok != 1) {
-				log__printf(mosq, MOSQ_LOG_ERR, "Error: host name verification failed.");
-			}
-			return preverify_ok;
 		}else{
 			return preverify_ok;
 		}
@@ -108,7 +100,7 @@ int mosquitto__cmp_hostname_wildcard(char *certname, const char *hostname)
 /* This code is based heavily on the example provided in "Secure Programming
  * Cookbook for C and C++".
  */
-int mosquitto__verify_certificate_hostname(X509 *cert, const char *hostname)
+int _mosquitto_verify_certificate_hostname(X509 *cert, const char *hostname)
 {
 	int i;
 	char name[256];
@@ -135,22 +127,14 @@ int mosquitto__verify_certificate_hostname(X509 *cert, const char *hostname)
 		for(i=0; i<sk_GENERAL_NAME_num(san); i++){
 			nval = sk_GENERAL_NAME_value(san, i);
 			if(nval->type == GEN_DNS){
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
 				data = ASN1_STRING_data(nval->d.dNSName);
-#else
-				data = ASN1_STRING_get0_data(nval->d.dNSName);
-#endif
 				if(data && !mosquitto__cmp_hostname_wildcard((char *)data, hostname)){
 					sk_GENERAL_NAME_pop_free(san, GENERAL_NAME_free);
 					return 1;
 				}
 				have_san_dns = true;
 			}else if(nval->type == GEN_IPADD){
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
 				data = ASN1_STRING_data(nval->d.iPAddress);
-#else
-				data = ASN1_STRING_get0_data(nval->d.iPAddress);
-#endif
 				if(nval->d.iPAddress->length == 4 && ipv4_ok){
 					if(!memcmp(ipv4_addr, data, 4)){
 						sk_GENERAL_NAME_pop_free(san, GENERAL_NAME_free);

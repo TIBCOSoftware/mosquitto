@@ -11,14 +11,11 @@ if cmd_subfolder not in sys.path:
 
 import mosq_test
 
-port = mosq_test.get_port()
-
 rc = 1
 mid = 3265
 keepalive = 60
 connect_packet = mosq_test.gen_connect("pub-qos1-disco-test", keepalive=keepalive, clean_session=False)
-connack1_packet = mosq_test.gen_connack(resv=0, rc=0)
-connack2_packet = mosq_test.gen_connack(resv=1, rc=0)
+connack_packet = mosq_test.gen_connack(rc=0)
 
 subscribe_packet = mosq_test.gen_subscribe(mid, "qos1/disconnect/test", 1)
 suback_packet = mosq_test.gen_suback(mid, 1)
@@ -32,16 +29,15 @@ mid = 3266
 publish2_packet = mosq_test.gen_publish("qos1/outgoing", qos=1, mid=mid, payload="outgoing-message")
 puback2_packet = mosq_test.gen_puback(mid)
 
-broker = mosq_test.start_broker(filename=os.path.basename(__file__), port=port)
+broker = mosq_test.start_broker(filename=os.path.basename(__file__))
 
 try:
-    sock = mosq_test.do_client_connect(connect_packet, connack1_packet, port=port)
+    sock = mosq_test.do_client_connect(connect_packet, connack_packet)
     sock.send(subscribe_packet)
 
     if mosq_test.expect_packet(sock, "suback", suback_packet):
-        pub = subprocess.Popen(['./03-publish-b2c-disconnect-qos1-helper.py', str(port)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        pub = subprocess.Popen(['./03-publish-b2c-disconnect-qos1-helper.py'])
         pub.wait()
-        (stdo, stde) = pub.communicate()
         # Should have now received a publish command
 
         if mosq_test.expect_packet(sock, "publish", publish_packet):
@@ -52,10 +48,10 @@ try:
 
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(60) # 60 seconds timeout is much longer than 5 seconds message retry.
-            sock.connect(("localhost", port))
+            sock.connect(("localhost", 1888))
             sock.send(connect_packet)
 
-            if mosq_test.expect_packet(sock, "connack", connack2_packet):
+            if mosq_test.expect_packet(sock, "connack", connack_packet):
 
                 if mosq_test.expect_packet(sock, "dup publish", publish_dup_packet):
                     sock.send(puback_packet)
@@ -65,8 +61,8 @@ try:
 finally:
     broker.terminate()
     broker.wait()
-    (stdo, stde) = broker.communicate()
     if rc:
+        (stdo, stde) = broker.communicate()
         print(stde)
 
 exit(rc)

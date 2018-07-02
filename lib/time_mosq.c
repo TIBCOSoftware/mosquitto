@@ -14,8 +14,6 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
-
 #ifdef __APPLE__
 #include <mach/mach.h>
 #include <mach/mach_time.h>
@@ -32,10 +30,33 @@ Contributors:
 #include "mosquitto.h"
 #include "time_mosq.h"
 
+#ifdef WIN32
+static bool tick64 = false;
+
+void _windows_time_version_check(void)
+{
+	OSVERSIONINFO vi;
+
+	tick64 = false;
+
+	memset(&vi, 0, sizeof(OSVERSIONINFO));
+	vi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	if(GetVersionEx(&vi)){
+		if(vi.dwMajorVersion > 5){
+			tick64 = true;
+		}
+	}
+}
+#endif
+
 time_t mosquitto_time(void)
 {
 #ifdef WIN32
-	return GetTickCount64()/1000;
+	if(tick64){
+		return GetTickCount64()/1000;
+	}else{
+		return GetTickCount()/1000; /* FIXME - need to deal with overflow. */
+	}
 #elif _POSIX_TIMERS>0 && defined(_POSIX_MONOTONIC_CLOCK)
 	struct timespec tp;
 

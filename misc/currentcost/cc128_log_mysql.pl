@@ -30,10 +30,10 @@ local $| = 1;
 my $dbname = "powermeter";
 my $dbhost = "localhost";
 my $dbusername = "powermeter";
-my $dbpassword = "<your password>";
+my $dbpassword = "password";
 my $dbtable = "powermeter";
 
-my $subclient = "mosquitto_sub -t sensors/cc128";
+my $subclient = "/usr/bin/mosquitto_sub -t sensors/cc128";
 open(SUB, "$subclient|");
 SUB->autoflush(1);
 

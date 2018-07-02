@@ -14,13 +14,13 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#ifndef WILL_MOSQ_H
-#define WILL_MOSQ_H
+#ifndef _WILL_MOSQ_H_
+#define _WILL_MOSQ_H_
 
-#include "mosquitto.h"
-#include "mosquitto_internal.h"
+#include <mosquitto.h>
+#include <mosquitto_internal.h>
 
-int will__set(struct mosquitto *mosq, const char *topic, int payloadlen, const void *payload, int qos, bool retain);
-int will__clear(struct mosquitto *mosq);
+int _mosquitto_will_set(struct mosquitto *mosq, const char *topic, int payloadlen, const void *payload, int qos, bool retain);
+int _mosquitto_will_clear(struct mosquitto *mosq);
 
 #endif

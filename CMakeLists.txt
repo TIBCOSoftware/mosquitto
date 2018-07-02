@@ -11,9 +11,17 @@ project(mosquitto)
 cmake_minimum_required(VERSION 2.8)
 # Only for version 3 and up. cmake_policy(SET CMP0042 NEW)
 
-set (VERSION 1.5.0)
+set (VERSION 1.4.15)
 
-add_definitions (-DCMAKE -DVERSION=\"${VERSION}\")
+if (WIN32)
+	execute_process(COMMAND cmd /c echo %DATE% %TIME% OUTPUT_VARIABLE TIMESTAMP
+			OUTPUT_STRIP_TRAILING_WHITESPACE)
+else (WIN32)
+	execute_process(COMMAND date "+%F %T%z" OUTPUT_VARIABLE TIMESTAMP
+			OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif (WIN32)
+
+add_definitions (-DCMAKE -DVERSION=\"${VERSION}\" -DTIMESTAMP=\"${TIMESTAMP}\")
 
 if (WIN32)
 	set (BINDIR .)
@@ -24,7 +32,6 @@ if (WIN32)
 	set (DATAROOTDIR share)
 	set (MANDIR man)
 	set (SHAREDEST .)
-	set (PKGCONFIGDIR "${LIBDIR}/pkgconfig")
 	add_definitions("-D_CRT_SECURE_NO_WARNINGS")
 	add_definitions("-D_CRT_NONSTDC_NO_DEPRECATE")
 else (WIN32)
@@ -42,7 +49,6 @@ else (WIN32)
 	set (DATAROOTDIR share)
 	set (MANDIR "${DATAROOTDIR}/man")
 	set (SHAREDIR "${DATAROOTDIR}/mosquitto")
-	set (PKGCONFIGDIR "${LIBDIR}/pkgconfig")
 endif (WIN32)
 
 option(WITH_TLS
@@ -71,18 +77,7 @@ if (${WITH_SOCKS} STREQUAL ON)
 	add_definitions("-DWITH_SOCKS")
 endif (${WITH_SOCKS} STREQUAL ON)
 
-option(WITH_SRV "Include SRV lookup support?" OFF)
-
-option(DOCUMENTATION "Build documentation?" ON)
-
-set(OPENSSL_ROOT_DIR "" CACHE PATH "The location of the openssl package.")
-set(PTHREAD_ROOT_DIR "" CACHE PATH "The location of the pthread package.")
-set(WEBSOCKET_ROOT_DIR "" CACHE PATH "The location of the websocket package.")
-
-
-set(OPENSSL_ROOT_DIR "" CACHE PATH "The location of the openssl package.")
-set(PTHREAD_ROOT_DIR "" CACHE PATH "The location of the pthread package.")
-set(WEBSOCKETS_ROOT_DIR "" CACHE PATH "The location of the websocket package.")
+option(WITH_SRV "Include SRV lookup support?" ON)
 
 # ========================================
 # Include projects
@@ -91,10 +86,10 @@ set(WEBSOCKETS_ROOT_DIR "" CACHE PATH "The location of the websocket package.")
 add_subdirectory(lib)
 add_subdirectory(client)
 add_subdirectory(src)
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    add_subdirectory(man)
-else()
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     # PASS
+else()
+    add_subdirectory(man)
 endif()
 
 # ========================================
@@ -102,18 +97,3 @@ endif()
 # ========================================
 
 install(FILES mosquitto.conf aclfile.example pskfile.example pwfile.example DESTINATION "${SYSCONFDIR}")
-
-
-# ========================================
-# Install pkg-config files
-# ========================================
-
-configure_file(libmosquitto.pc.in libmosquitto.pc @ONLY)
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libmosquitto.pc" DESTINATION "${PKGCONFIGDIR}")
-configure_file(libmosquittopp.pc.in libmosquittopp.pc @ONLY)
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libmosquittopp.pc" DESTINATION "${PKGCONFIGDIR}")
-
-# ========================================
-# Testing
-# ========================================
-add_custom_target(Tests COMMAND make -C ${mosquitto_SOURCE_DIR}/test test)

@@ -13,11 +13,11 @@ and the Eclipse Distribution License is available at
 Contributors:
    Roger Light - initial implementation and documentation.
 */
-#ifndef LOGGING_MOSQ_H
-#define LOGGING_MOSQ_H
+#ifndef _LOGGING_MOSQ_H_
+#define _LOGGING_MOSQ_H_
 
-#include "mosquitto.h"
+#include <mosquitto.h>
 
-int log__printf(struct mosquitto *mosq, int priority, const char *fmt, ...);
+int _mosquitto_log_printf(struct mosquitto *mosq, int priority, const char *fmt, ...);
 
 #endif

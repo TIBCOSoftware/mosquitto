@@ -14,8 +14,8 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#ifndef TIME_MOSQ_H
-#define TIME_MOSQ_H
+#ifndef _TIME_MOSQ_H_
+#define _TIME_MOSQ_H_
 
 time_t mosquitto_time(void);
 

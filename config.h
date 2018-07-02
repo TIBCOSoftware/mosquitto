@@ -1,4 +1,3 @@
-#ifndef CONFIG_H
 /* ============================================================
  * Control compile time options.
  * ============================================================
@@ -9,6 +8,8 @@
 
 /* ============================================================
  * Compatibility defines
+ *
+ * Generally for Windows native support.
  * ============================================================ */
 #if defined(_MSC_VER) && _MSC_VER < 1900
 #  define snprintf sprintf_s
@@ -17,21 +18,13 @@
 
 #ifdef WIN32
 #  ifndef strcasecmp
-#    define strcasecmp stricmp
+#    define strcasecmp strcmpi
 #  endif
 #define strtok_r strtok_s
 #define strerror_r(e, b, l) strerror_s(b, l, e)
 #endif
 
 
-#define uthash_malloc(sz) mosquitto__malloc(sz)
-#define uthash_free(ptr,sz) mosquitto__free(ptr)
+#define uthash_malloc(sz) _mosquitto_malloc(sz)
+#define uthash_free(ptr,sz) _mosquitto_free(ptr)
 
-#ifdef __APPLE__
-#  define __DARWIN_C_SOURCE
-#else
-#  define _DEFAULT_SOURCE 1
-#  define _POSIX_C_SOURCE 200809L
-#endif
-
-#endif

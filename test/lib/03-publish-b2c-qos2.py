@@ -29,8 +29,6 @@ if cmd_subfolder not in sys.path:
 
 import mosq_test
 
-port = mosq_test.get_lib_port()
-
 rc = 1
 keepalive = 60
 connect_packet = mosq_test.gen_connect("publish-qos2-test", keepalive=keepalive)
@@ -47,7 +45,7 @@ pubcomp_packet = mosq_test.gen_pubcomp(mid)
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.settimeout(10)
-sock.bind(('', port))
+sock.bind(('', 1888))
 sock.listen(5)
 
 client_args = sys.argv[1:]
@@ -58,7 +56,7 @@ try:
 except KeyError:
     pp = ''
 env['PYTHONPATH'] = '../../lib/python:'+pp
-client = mosq_test.start_client(filename=sys.argv[1].replace('/', '-'), cmd=client_args, env=env, port=port)
+client = mosq_test.start_client(filename=sys.argv[1].replace('/', '-'), cmd=client_args, env=env)
 
 try:
     (conn, address) = sock.accept()
@@ -69,10 +67,12 @@ try:
         conn.send(publish_packet)
 
         if mosq_test.expect_packet(conn, "pubrec", pubrec_packet):
-            conn.send(pubrel_packet)
+            # Should be repeated due to timeout
+            if mosq_test.expect_packet(conn, "pubrec", pubrec_packet):
+                conn.send(pubrel_packet)
 
-            if mosq_test.expect_packet(conn, "pubcomp", pubcomp_packet):
-                rc = 0
+                if mosq_test.expect_packet(conn, "pubcomp", pubcomp_packet):
+                    rc = 0
 
     conn.close()
 finally:

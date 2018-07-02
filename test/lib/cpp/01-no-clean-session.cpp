@@ -17,13 +17,11 @@ int main(int argc, char *argv[])
 {
 	struct mosquittopp_test *mosq;
 
-	int port = atoi(argv[1]);
-
 	mosqpp::lib_init();
 
 	mosq = new mosquittopp_test("01-no-clean-session", false);
 
-	mosq->connect("localhost", port, 60);
+	mosq->connect("localhost", 1888, 60);
 
 	while(run == -1){
 		mosq->loop();

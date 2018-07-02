@@ -28,19 +28,17 @@ def pattern_test(sub_topic, pub_topic):
     unsubscribe_packet = mosq_test.gen_unsubscribe(mid, sub_topic)
     unsuback_packet = mosq_test.gen_unsuback(mid)
 
-    port = mosq_test.get_port()
-    broker = subprocess.Popen(['../../src/mosquitto', '-p', str(port)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    broker = subprocess.Popen(['../../src/mosquitto', '-p', '1888'], stderr=subprocess.PIPE)
 
     try:
         time.sleep(0.5)
 
-        sock = mosq_test.do_client_connect(connect_packet, connack_packet, timeout=20, port=port)
+        sock = mosq_test.do_client_connect(connect_packet, connack_packet, timeout=20)
         sock.send(subscribe_packet)
 
         if mosq_test.expect_packet(sock, "suback", suback_packet):
-            pub = subprocess.Popen(['./03-pattern-matching-helper.py', pub_topic, str(port)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            pub = subprocess.Popen(['./03-pattern-matching-helper.py', pub_topic])
             pub.wait()
-            (stdo, stde) = pub.communicate()
 
             if mosq_test.expect_packet(sock, "publish", publish_packet):
                 sock.send(unsubscribe_packet)
@@ -56,10 +54,9 @@ def pattern_test(sub_topic, pub_topic):
     finally:
         broker.terminate()
         broker.wait()
-        (stdo, stde) = broker.communicate()
         if rc:
+            (stdo, stde) = broker.communicate()
             print(stde)
-            print(stdo)
             raise
 
     return rc

@@ -35,9 +35,8 @@ try:
     sock.send(subscribe_packet)
 
     if mosq_test.expect_packet(sock, "suback", suback_packet):
-        pub = subprocess.Popen(['./03-publish-b2c-timeout-qos2-helper.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE))
+        pub = subprocess.Popen(['./03-publish-b2c-timeout-qos2-helper.py'])
         pub.wait()
-        (stdo, stde) = pub.communicate()
         # Should have now received a publish command
 
         if mosq_test.expect_packet(sock, "publish", publish_packet):
@@ -59,8 +58,8 @@ try:
 finally:
     broker.terminate()
     broker.wait()
-    (stdo, stde) = broker.communicate()
     if rc:
+        (stdo, stde) = broker.communicate()
         print(stde)
 
 exit(rc)
