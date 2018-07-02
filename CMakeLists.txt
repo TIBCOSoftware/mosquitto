@@ -79,6 +79,12 @@ endif (${WITH_SOCKS} STREQUAL ON)
 
 option(WITH_SRV "Include SRV lookup support?" ON)
 
+option(DOCUMENTATION "Build documentation?" ON)
+
+set(OPENSSL_ROOT_DIR "" CACHE PATH "The location of the openssl package.")
+set(PTHREAD_ROOT_DIR "" CACHE PATH "The location of the pthread package.")
+set(WEBSOCKETS_ROOT_DIR "" CACHE PATH "The location of the websocket package.")
+
 # ========================================
 # Include projects
 # ========================================
@@ -86,10 +92,10 @@ option(WITH_SRV "Include SRV lookup support?" ON)
 add_subdirectory(lib)
 add_subdirectory(client)
 add_subdirectory(src)
-if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    # PASS
-else()
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     add_subdirectory(man)
+else()
+    # PASS
 endif()
 
 # ========================================

@@ -109,7 +109,20 @@ if (WIN32)
 endif (WIN32)
 
 if (${WITH_WEBSOCKETS} STREQUAL ON)
-	set (MOSQ_LIBS ${MOSQ_LIBS} websockets)
+    if (WEBSOCKETS_ROOT_DIR)
+        find_library(WEBSOCK_LIB websockets 
+            PATHS ${WEBSOCKETS_ROOT_DIR}
+            PATH_SUFFIXES lib)
+        if (WEBSOCK_LIB)
+            message(STATUS " FOUND: websockets - ${WEBSOCKETS_ROOT_DIR}.")
+			set(MOSQ_LIBS ${MOSQ_LIBS} ${WEBSOCK_LIB})
+            include_directories(${WEBSOCKETS_ROOT_DIR}/include)
+		else (WEBSOCK_LIB)
+            message(FATAL " ERROR: Could not find websockets library ${WEBSOCKETS_ROOT_DIR}.")
+        endif (WEBSOCK_LIB)
+    else (WEBSOCKETS_ROOT_DIR)
+		set(MOSQ_LIBS ${MOSQ_LIBS} websockets)
+    endif (WEBSOCKETS_ROOT_DIR)
 endif (${WITH_WEBSOCKETS} STREQUAL ON)
 
 # Simple detect libuuid
@@ -140,7 +153,7 @@ if (${WITH_TLS} STREQUAL ON)
 	install(TARGETS mosquitto_passwd RUNTIME DESTINATION "${BINDIR}" LIBRARY DESTINATION "${LIBDIR}")
 endif (${WITH_TLS} STREQUAL ON)
 
-if (UNIX)
+if (UNIX AND NOT APPLE)
 	install(CODE "EXEC_PROGRAM(/sbin/ldconfig)")
-endif (UNIX)
+endif (UNIX AND NOT APPLE)
 
