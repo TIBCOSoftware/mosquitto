@@ -4,12 +4,12 @@ Copyright (c) 2010-2018 Roger Light <roger@atchoo.org>
 All rights reserved. This program and the accompanying materials
 are made available under the terms of the Eclipse Public License v1.0
 and Eclipse Distribution License v1.0 which accompany this distribution.
- 
+
 The Eclipse Public License is available at
    http://www.eclipse.org/legal/epl-v10.html
 and the Eclipse Distribution License is available at
   http://www.eclipse.org/org/documents/edl-v10.php.
- 
+
 Contributors:
    Roger Light - initial implementation and documentation.
 */
@@ -26,7 +26,11 @@ Contributors:
 #else
 #include <winsock2.h>
 #include <windows.h>
+#ifdef _WIN64
+typedef _int64 ssize_t;
+#else
 typedef int ssize_t;
+#endif
 #endif
 
 #include <mosquitto.h>
@@ -263,13 +267,13 @@ int mosquitto_username_pw_set(struct mosquitto *mosq, const char *username, cons
 int mosquitto_reconnect_delay_set(struct mosquitto *mosq, unsigned int reconnect_delay, unsigned int reconnect_delay_max, bool reconnect_exponential_backoff)
 {
 	if(!mosq) return MOSQ_ERR_INVAL;
-	
+
 	mosq->reconnect_delay = reconnect_delay;
 	mosq->reconnect_delay_max = reconnect_delay_max;
 	mosq->reconnect_exponential_backoff = reconnect_exponential_backoff;
-	
+
 	return MOSQ_ERR_SUCCESS;
-	
+
 }
 
 void _mosquitto_destroy(struct mosquitto *mosq)
@@ -495,7 +499,7 @@ static int _mosquitto_reconnect(struct mosquitto *mosq, bool blocking)
 	mosq->ping_t = 0;
 
 	_mosquitto_packet_cleanup(&mosq->in_packet);
-		
+
 	pthread_mutex_lock(&mosq->current_out_packet_mutex);
 	pthread_mutex_lock(&mosq->out_packet_mutex);
 
