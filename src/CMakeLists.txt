@@ -151,9 +151,20 @@ if (${WITH_WEBSOCKETS} STREQUAL ON)
 			set (MOSQ_LIBS ${MOSQ_LIBS} iphlpapi)
 			link_directories(${mosquitto_SOURCE_DIR})
 		endif (WIN32)
-	else (${STATIC_WEBSOCKETS} STREQUAL ON)
-		set (MOSQ_LIBS ${MOSQ_LIBS} websockets)
-	endif (${STATIC_WEBSOCKETS} STREQUAL ON)
+    elseif (WEBSOCKETS_ROOT_DIR)
+        find_library(WEBSOCK_LIB websockets 
+            PATHS ${WEBSOCKETS_ROOT_DIR}
+            PATH_SUFFIXES lib)
+        if (WEBSOCK_LIB)
+            message(STATUS " FOUND: websockets - ${WEBSOCKETS_ROOT_DIR}.")
+			set(MOSQ_LIBS ${MOSQ_LIBS} ${WEBSOCK_LIB})
+            include_directories(${WEBSOCKETS_ROOT_DIR}/include)
+		else (WEBSOCK_LIB)
+            message(FATAL " ERROR: Could not find websockets library ${WEBSOCKETS_ROOT_DIR}.")
+        endif (WEBSOCK_LIB)
+    else (WEBSOCKETS_ROOT_DIR)
+		set(MOSQ_LIBS ${MOSQ_LIBS} websockets)
+    endif (WEBSOCKETS_ROOT_DIR)
 endif (${WITH_WEBSOCKETS} STREQUAL ON)
 
 # Simple detect libuuid

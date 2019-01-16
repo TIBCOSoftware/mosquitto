@@ -77,14 +77,20 @@ option(WITH_THREADING "Include client library threading support?" ON)
 if (${WITH_THREADING} STREQUAL ON)
 	add_definitions("-DWITH_THREADING")
 	if (WIN32)
-		if (CMAKE_CL_64)
+		if (PTHREAD_ROOT_DIR)
+			set (PTHREAD_INCLUDE_DIR ${PTHREAD_ROOT_DIR}\\Pre-built.2\\include)
+			set (PTHREAD_LIBRARIES ${PTHREAD_ROOT_DIR}\\Pre-built.2\\lib\\x64\\pthreadVC2.lib)
+		elseif (CMAKE_CL_64)
 			set (PTHREAD_LIBRARIES C:\\pthreads\\Pre-built.2\\lib\\x64\\pthreadVC2.lib)
+            set (PTHREAD_INCLUDE_DIR C:\\pthreads\\Pre-built.2\\include)
 		else (CMAKE_CL_64)
 			set (PTHREAD_LIBRARIES C:\\pthreads\\Pre-built.2\\lib\\x86\\pthreadVC2.lib)
+            set (PTHREAD_INCLUDE_DIR C:\\pthreads\\Pre-built.2\\include)
 		endif (CMAKE_CL_64)
-		set (PTHREAD_INCLUDE_DIR C:\\pthreads\\Pre-built.2\\include)
 	else (WIN32)
 		find_library(LIBPTHREAD pthread)
+        # PATHS "${PTHREAD_ROOT_DIR}"
+        # PATH_SUFFIXES lib)
 		if (LIBPTHREAD)
 			set (PTHREAD_LIBRARIES pthread)
 		else (LIBPTHREAD)
@@ -98,6 +104,11 @@ else (${WITH_THREADING} STREQUAL ON)
 endif (${WITH_THREADING} STREQUAL ON)
 
 option(DOCUMENTATION "Build documentation?" ON)
+
+set(OPENSSL_ROOT_DIR "" CACHE PATH "The location of the openssl package.")
+set(PTHREAD_ROOT_DIR "" CACHE PATH "The location of the pthread package.")
+set(WEBSOCKETS_ROOT_DIR "" CACHE PATH "The location of the websocket package.")
+
 
 # ========================================
 # Include projects
